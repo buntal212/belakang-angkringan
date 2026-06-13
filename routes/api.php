@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Transaksi\Penjualan\PenjualanController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MenuController;
@@ -27,4 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/master-menu', [MasterMenuController::class, 'store']);
     Route::put('/master-menu/{kodemenu}', [MasterMenuController::class, 'update']);
     Route::delete('/master-menu/{kodemenu}', [MasterMenuController::class, 'destroy']);
+
+    Route::get('/penjualan-getlist', [PenjualanController::class, 'index']);
+    Route::post('/penjualan-simpan', [PenjualanController::class, 'store']);
 });
