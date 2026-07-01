@@ -23,7 +23,7 @@ class StorePenjualanRequest extends FormRequest
     public function rules(): array
     {
          return [
-            'kode_angkringan' => 'nullable',
+            'kode_angkringan' => 'required',
             'catatan' => 'nullable|string',
             'metode_bayar' => 'nullable|string',
             'dibayar' => 'nullable|numeric|min:0',
@@ -40,6 +40,7 @@ class StorePenjualanRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'kode_ankringan' => 'Kode Angkringan Tidak Boleh Kosong...!!!',
             'items.required' => 'Item pesanan wajib diisi',
             'items.min' => 'Minimal 1 item pesanan',
             'items.*.kodemenu.required' => 'Menu wajib dipilih',

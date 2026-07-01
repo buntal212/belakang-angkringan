@@ -31,4 +31,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/penjualan-getlist', [PenjualanController::class, 'index']);
     Route::post('/penjualan-simpan', [PenjualanController::class, 'store']);
+    Route::post('/penjualan-bayar', [PenjualanController::class, 'bayar']);
 });
