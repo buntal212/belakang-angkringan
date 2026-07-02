@@ -31,6 +31,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'username' => $request->username,
             'password' => $request->password,
+            'pass' => $request->password,
             'lokasi' => $request->lokasi,
             'owner' => $request->owner,
             'no_telpon' => $request->no_telpon,

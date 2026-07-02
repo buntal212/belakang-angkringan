@@ -7,8 +7,11 @@ class MenuController extends Controller
 {
     public function index()
     {
-        // Mengirim data menu (bisa juga dari database nanti)
-        $menus = Menus::all();
+        if(request('user') == 1 ){
+            $menus = Menus::all();
+        }else{
+            $menus = Menus::where('flaging','1')->get();
+        }
 
         return response()->json([
             'status' => 'success',
