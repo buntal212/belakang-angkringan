@@ -17,9 +17,9 @@ class PenjualanService
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('no_transaksi', 'like', "%{$search}%")
-                      ->orWhere('angkringan_id', 'like', "%{$search}%")
+                      ->orWhere('atasnama', 'like', "%{$search}%")
                       ->orWhereHas('rinci.menu', function ($mq) use ($search) {
-                          $mq->where('nama_menu', 'like', "%{$search}%");
+                          $mq->where('name', 'like', "%{$search}%");
                       });
                 });
             })
@@ -71,47 +71,67 @@ class PenjualanService
     public function store(array $data)
     {
         return DB::transaction(function () use ($data) {
+
             $user = auth()->user();
+            $id = $data['id'] ?? null;
 
-            $noTransaksi = $this->generateNoTransaksi();
+            if (!empty($id)) {
+                $header = Penjualan_heders::findOrFail($id);
 
-            $totalHarga = collect($data['items'])->sum(function ($item) {
-                return (float) $item['harga'] * (int) $item['qty'];
-            });
+                $header->update([
+                    'angkringan_id' => $data['kode_angkringan'],
+                    'atasnama'     => $data['atasnama'] ?? null,
+                    'keterangan'   => $data['catatan'] ?? null,
+                ]);
 
-            // $angkringanId = $user->id == 1
-            //     ? ($data['angkringan_id'] ?? null)
-            //     : $user->id;
-
-            $header = Penjualan_heders::create([
-                'no_transaksi' => $noTransaksi,
-                'tanggal_transaksi' => now(),
-                'user_id' => $user->id,
-                'angkringan_id' => $data['kode_angkringan'],
-                'total_harga' => $totalHarga,
-                'flag' => 1,
-                'keterangan' => $data['keterangan'] ?? null,
-            ]);
+                $header->rinci()->delete();
+            } else {
+                $header = Penjualan_heders::create([
+                    'no_transaksi'      => $this->generateNoTransaksi(),
+                    'tanggal_transaksi' => now(),
+                    'user_id'           => $user->id,
+                    'angkringan_id'     => $data['kode_angkringan'],
+                    'flag'              => 1,
+                    'atasnama'          => $data['atasnama'] ?? null,
+                    'keterangan'        => $data['catatan'] ?? null,
+                    'total_harga'       => 0,
+                ]);
+            }
+            $totalHarga = 0;
 
             foreach ($data['items'] as $item) {
+
                 $jumlah = (int) $item['qty'];
-                $harga = (float) $item['harga'];
+                $harga  = (float) $item['harga'];
+                $subtotal = $jumlah * $harga;
+
+                $totalHarga += $subtotal;
 
                 Penjualan_rinci::create([
-                    'header_id' => $header->id,
-                    'menu_id' => $item['kodemenu'],
-                    'jumlah' => $jumlah,
-                    'harga_satuan' => $harga,
-                    'subtotal' => $jumlah * $harga,
+                    'header_id'     => $header->id,
+                    'menu_id'       => $item['kodemenu'],
+                    'jumlah'        => $jumlah,
+                    'harga_satuan'  => $harga,
+                    'subtotal'      => $subtotal,
                 ]);
             }
 
-            return $header->load('rinci');
+            $header->update([
+                'total_harga' => $totalHarga,
+            ]);
+
+            return $header->load('rinci.menu');
         });
     }
-
     private function generateNoTransaksi(): string
     {
-        return 'TRX' . now()->format('YmdHis');
+        $user = auth()->user();
+
+         return sprintf(
+            'TR-%02d-%s-%03d',
+            $user->id,
+            now()->format('YmdHis'),
+            random_int(100, 999)
+        );
     }
 }

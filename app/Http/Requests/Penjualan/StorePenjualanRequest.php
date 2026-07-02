@@ -20,16 +20,23 @@ class StorePenjualanRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+   public function rules(): array
     {
-         return [
-            'kode_angkringan' => 'required',
+        return [
+            'id' => 'nullable|integer',
+            'notrans' => 'nullable|string',
+            'tgl' => 'nullable|date',
+
+            'kode_angkringan' => 'required|integer',
+            'atasnama' => 'required|string|max:100',
             'catatan' => 'nullable|string',
             'metode_bayar' => 'nullable|string',
+
             'dibayar' => 'nullable|numeric|min:0',
             'kembalian' => 'nullable|numeric',
 
             'items' => 'required|array|min:1',
+            'items.*.id' => 'nullable|integer',
             'items.*.kodemenu' => 'required|string',
             'items.*.qty' => 'required|integer|min:1',
             'items.*.harga' => 'required|numeric|min:0',
@@ -40,12 +47,17 @@ class StorePenjualanRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'kode_ankringan' => 'Kode Angkringan Tidak Boleh Kosong...!!!',
-            'items.required' => 'Item pesanan wajib diisi',
-            'items.min' => 'Minimal 1 item pesanan',
-            'items.*.kodemenu.required' => 'Menu wajib dipilih',
-            'items.*.qty.min' => 'Jumlah minimal 1',
-            'metode_bayar.required' => 'Metode bayar wajib dipilih',
+            'kode_angkringan.required' => 'Kode Angkringan Tidak Boleh Kosong...!!!',
+            'atasnama.required' => 'Atas Nama / Pemesan Harus Diisi',
+
+            'items.required' => 'Item pesanan wajib diisi.',
+            'items.min' => 'Minimal 1 item pesanan.',
+
+            'items.*.kodemenu.required' => 'Menu wajib dipilih.',
+            'items.*.qty.required' => 'Jumlah wajib diisi.',
+            'items.*.qty.min' => 'Jumlah minimal 1.',
+            'items.*.harga.required' => 'Harga wajib diisi.',
+            'items.*.subtotal.required' => 'Subtotal wajib diisi.',
         ];
     }
 }

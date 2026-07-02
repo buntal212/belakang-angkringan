@@ -2,7 +2,7 @@
 
 namespace App\Models\Transaksi\Penjualan;
 
-use App\Models\Menus;
+use App\Models\MasterMenu;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,7 +14,7 @@ class Penjualan_rinci extends Model
 
     public function menu()
     {
-        return $this->belongsTo(Menus::class, 'menu_id', 'id');
+        return $this->belongsTo(MasterMenu::class, 'menu_id', 'kodemenu');
     }
 }
 
